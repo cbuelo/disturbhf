@@ -334,10 +334,10 @@ mwdistdiffz<-function(testy, refy, wwidth, refwidth=NULL, dx=0.01, stride=1, dmi
           tpd<-refy$tt > ltest | refy$tt <= rtest
         }
 
-        lref<-min(refy$doy[abs(refy$tt-wind[ww]) < dtt/10]-refwidth*dt/2) %% 365 #left side of reference window
+        lref<-min(refy$doy[abs(decimal_doy(refy$tt)-decimal_doy(wind[ww])) < dt/10]-refwidth*dt/2) %% 365 #left side of reference window
         if(length(lref)==0){next} #enables skipping indices when time series are gappy
         if(lref==0){lref==365}
-        rref<-max(refy$doy[abs(refy$tt-wind[ww]) < dtt/10]+refwidth*dt/2) %% 365 #right side of reference window
+        rref<-max(refy$doy[abs(decimal_doy(refy$tt)-decimal_doy(wind[ww])) < dt/10]+refwidth*dt/2) %% 365 #right side of reference window
         if(rref==0){rref==365}
         if(rref > lref){
           rpd<-refy$doy > lref & refy$doy <= rref
