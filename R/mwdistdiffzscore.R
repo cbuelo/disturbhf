@@ -314,7 +314,7 @@ mwdistdiffz<-function(testy, refy, wwidth, refwidth=NULL, dx=0.01, stride=1, dmi
       dtt<-diff(testy$tt)[1] #time difference in time units
       tmin<-min(refy$tt) # minimum time in test period
       tmax<-max(refy$tt) # maximum time in test period
-
+      unique_ref_doy = unique(refy$doy)
       #Compute excursions in ref period and get mean and sd
       wind<-seq(from=tmin, to=tmax, by=stride*dtt)
       ddiff<-rep(NA, length(wind))
@@ -333,7 +333,7 @@ mwdistdiffz<-function(testy, refy, wwidth, refwidth=NULL, dx=0.01, stride=1, dmi
         if(rtest < ltest){
           tpd<-refy$tt > ltest | refy$tt <= rtest
         }
-
+        if(!any(abs(unique_ref_doy - wind[ww]) < dt/10)){next}
         lref<-min(refy$doy[abs(decimal_doy(refy$tt)-decimal_doy(wind[ww])) < dt/10]-refwidth*dt/2) %% 365 #left side of reference window
         if(length(lref)==0){next} #enables skipping indices when time series are gappy
         if(lref==0){lref==365}
