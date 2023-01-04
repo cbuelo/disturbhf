@@ -16,6 +16,7 @@
 #' @param refwidth the width of the rolling reference window, in number of time steps; if \code{NULL} do not use rolling reference window
 #' @param dx increment between values at which to evaluate differences between the cdf for \code{yy} and \code{refy}
 #' @param stride number of time steps by which the moving window advances
+#' @param ref_stride number of time steps by which the moving window advances, optional for use with adaptive reference window
 #' @param dmin the fraction of data that must be present (i.e., non-NA) in test (and, if applicable, adaptive reference) moving windows to procede with computations.
 #' @param ddiff_method statistic quantifying difference between test and reference distributions; default is "dist" for maximum absolute difference between the ecdf's (bounded [0,1]), "integral" computes the integral of the absolute value of the differences between the ecdf's over the range of observed value (bounded by the distance between the distribution if they are completely non-overlapping)
 #'
@@ -40,7 +41,7 @@
 #' @export
 
 ## create DOY column to index off of, accept tt as numeric (1,Inf), or date
-mwdistdiffz<-function(testy, refy, wwidth, refwidth=NULL, dx=0.01, stride=1, dmin=0.5, ddiff_method = "dist"){
+mwdistdiffz<-function(testy, refy, wwidth, refwidth=NULL, dx=0.01, stride=1, dmin=0.5, ddiff_method = "dist", ref_stride = NULL){
 
   #a little error handling
   if(!is.data.frame(testy) | !"tt" %in% colnames(testy) | !"yy" %in% colnames(testy)){
@@ -203,10 +204,13 @@ mwdistdiffz<-function(testy, refy, wwidth, refwidth=NULL, dx=0.01, stride=1, dmi
       tmin<-min(refy$tt)
       tmax<-max(refy$tt)
 
-
+      # set reference stride to use, if specified
+      if(is.null(ref_stride)){
+        ref_stride = stride
+      }
 
       #Compute excursions in ref period and get mean and sd
-      wind<-seq(from=tmin, to=tmax, by=stride*dt)
+      wind<-seq(from=tmin, to=tmax, by=ref_stride*dt)
       ddiff<-rep(NA, length(wind))
 
       for(ww in 1:length(wind)){
@@ -316,7 +320,7 @@ mwdistdiffz<-function(testy, refy, wwidth, refwidth=NULL, dx=0.01, stride=1, dmi
       tmax<-max(refy$tt) # maximum time in test period
       unique_ref_doy = unique(refy$doy)
       #Compute excursions in ref period and get mean and sd
-      wind<-seq(from=tmin, to=tmax, by=stride*dtt)
+      wind<-seq(from=tmin, to=tmax, by=ref_stride*dtt)
       ddiff<-rep(NA, length(wind))
 
       for(ww in 1:length(wind)){
